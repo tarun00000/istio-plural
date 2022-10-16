@@ -1,0 +1,9 @@
+
+kubectl -n istio-system port-forward svc/kiali 20001
+
+
+
+while :
+do
+	curl https://productpage.c-8a75389.kyma.ondemand.com/productpage
+done

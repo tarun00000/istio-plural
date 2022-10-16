@@ -1,0 +1,17 @@
+apiVersion: gateway.kyma-project.io/v1alpha1
+kind: APIRule
+metadata:
+  name: kyma-metering-poc                         # Name of the API rule (will show up in Kyma dashboard).
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local   # The Istio.io Gateway in the Kyma landscape.
+  service:
+    name: productpage                          # Name of our service (as given in service.yml).
+    port: 9080                                            # Port the service is exposed on.
+    host: productpage                   # Host part of the URL the service will be exposed by to the outside world.
+  rules:
+    - path: /.* #/business/v1/.*                               # The path to control access to. This is a regular expression.
+      # The HTTP methods a client is allowed to use when accessing the endpoint.
+      methods: ["GET", "POST", "PUT", "DELETE"]
+      mutators: []                                      # Possible request mutators (e.g. to re-write headers, etc.). See: https://kyma-project.io/docs/components/api-gateway/#custom-resource-api-rule-sample-custom-resource
+      accessStrategies:
+        - handler: allow

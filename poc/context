@@ -1,0 +1,92 @@
+kubectl config set-context --current --namespace=cic-system
+kubectl get deploy ep-counter -o yaml | istioctl kube-inject -f - | kubectl apply -f -
+
+
+kubectl config set-context --current --namespace=oms
+
+kubectl get deploy details-v1 -o yaml | istioctl kube-inject -f - | kubectl apply -f -
+kubectl get deploy ratings-v1 -o yaml | istioctl kube-inject -f - | kubectl apply -f -
+
+kubectl config set-context --current --namespace=omsa
+kubectl get deploy productpage-v1 -o yaml | istioctl kube-inject -f - | kubectl apply -f -
+
+kubectl config set-context --current --namespace=osta
+kubectl get deploy reviews-v1 -o yaml | istioctl kube-inject -f - | kubectl apply -f -
+
+
+
+kubectl port-forward --namespace kube-cost deployment/kubecost-cost-analyzer 9090
+kubectl -n istio-system port-forward svc/kiali 20001
+kubectl -n istio-system port-forward svc/tracing 8081:80
+
+
+
+select sum(
+    pg_total_relation_size(quote_ident(schemaname) || 
+    '.' || 
+    quote_ident(tablename))
+)::bigint 
+from pg_tables where schemaname = 'bxrzplsi';
+
+select
+      pg_size_pretty(pg_total_relation_size(relid)) as total_size,
+      pg_size_pretty(pg_relation_size(relid, 'main')) as relation_size_main,
+      pg_size_pretty(pg_relation_size(relid, 'fsm')) as relation_size_fsm,
+      pg_size_pretty(pg_relation_size(relid, 'vm')) as relation_size_vm,
+      pg_size_pretty(pg_relation_size(relid, 'init')) as relation_size_init,
+      pg_size_pretty(pg_table_size(relid)) as table_size,
+      pg_size_pretty(pg_total_relation_size(relid) - pg_relation_size(relid)) as external_size
+ from 
+      pg_catalog.pg_statio_user_tables
+where 
+      schemaname = 'bxrzplsi'
+	  
+-- To get the size of the whole database, you use the pg_database_size()
+	  
+SELECT
+    pg_size_pretty (
+        pg_database_size ('configuration-service-postgres-testing-us-1-aw70')
+    );
+
+-- To get the size of each database in the current database server, you use the following statement:
+SELECT
+    pg_database.datname,
+    pg_size_pretty(pg_database_size(pg_database.datname)) AS size
+    FROM pg_database;
+	
+	
+-- For example, the following query returns top 5 biggest tables in the dvdrental database:	
+SELECT
+    relname AS "relation",
+    pg_size_pretty (
+        pg_total_relation_size (C .oid)
+    ) AS "total_size"
+FROM
+    pg_class C
+LEFT JOIN pg_namespace N ON (N.oid = C .relnamespace)
+WHERE
+    nspname NOT IN (
+        'pg_catalog',
+        'information_schema'
+    )
+AND C .relkind <> 'i'
+AND nspname !~ '^pg_toast'
+ORDER BY
+    pg_total_relation_size (C .oid) DESC
+LIMIT 5;
+
+
+why do you want to have a cost per tenant in dev/stag and sit?
+In these environments tenant are for MMPs , so more tenant more usage so you are going to cost mmps for more testing ?
+
+In Azure there is clear visiblity of cost per resource 
+but in Kyma how you want to draw this line ?
+
+Nodes <-> namespacewe 
+have node created with label like MMP=OMS and that select pod to only schedule to that node 
+For MMP presepective it is fine ?
+But tenant prespective it is still not giving the solution. 
+it will create the situation oms pod want to schdule but node with label oms does not have cpu but neighbour omsa does have it.
+But as policy is defined it wont schedule. So Kyma/Gardeer is smart enough to spawn a node with label oms
+
+40000$ of the cluster , 1 call to optimizer 20 call omsa 20 call to oms , than what ?

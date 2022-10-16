@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service  
+spec:
+  type: ExternalName
+  externalName: com-36-1.redis.cache.windows.net
