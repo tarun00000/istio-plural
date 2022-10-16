@@ -1,0 +1,24 @@
+
+apiVersion: authentication.istio.io/v1alpha1
+kind: Policy
+metadata:
+  name: default
+  namespace: default
+spec:
+  peers:
+  - mtls: {}
+---
+
+# this is needed beacuse once above policy is applied all clients need to send tls for conversation.
+# In Destination we configure client send tls = ISTIO_MUTUAL
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: default
+  namespace: default
+spec:
+  host: "*.default.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+---
